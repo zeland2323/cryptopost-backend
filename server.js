@@ -4,13 +4,21 @@ import { TwitterApi } from "twitter-api-v2";
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+app.options("*", cors());
 
 app.get("/", (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.json({ status: "ok", service: "CryptoPost Backend" });
 });
 
 app.post("/tweet", async (req, res) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
   const { text, api_key, api_secret, access_token, token_secret } = req.body;
 
   if (!text || !api_key || !api_secret || !access_token || !token_secret) {
@@ -30,9 +38,7 @@ app.post("/tweet", async (req, res) => {
     });
 
     const tweet = await client.readWrite.v2.tweet(text);
-
     console.log(`Tweet published: ${tweet.data.id}`);
-
     return res.json({
       success:  true,
       tweet_id: tweet.data.id,
